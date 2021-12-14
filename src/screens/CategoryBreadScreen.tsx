@@ -1,25 +1,43 @@
-import React from "react";
-import {Text, View, StyleSheet, Button} from "react-native";
-import {useNavigation} from "@react-navigation/native";
+import React, {useEffect} from "react";
+import {StyleSheet, View} from "react-native";
+import {useNavigation, useRoute} from "@react-navigation/native";
+import BreadItem from "../Components/BreadItem";
+import {useDispatch, useSelector} from "react-redux";
+import {filteredBread, selectBread} from "../store/actions/BreadAction";
 
 
-export default function CategoryBreadScreen(props:any){
+export default function CategoryBreadScreen(props: any) {
     const navigation = useNavigation()
-    return(
-        <View style={style.container}>
+    const route = useRoute()
+    const dispatch = useDispatch()
+    const breadFilter = useSelector(state => state.breads.filteredBreads)
+    const category = useSelector(state => state.categories.selected)
 
-            <Text>Category bread screen</Text>
-            <Button title={'ir a detalle'} onPress={()=>{ // @ts-ignore
-                navigation.navigate('Detail')}}/>
-            <Button title={'regresar'} onPress={()=>{navigation.goBack()}}/>
+    useEffect(() => {
+        dispatch(filteredBread(category.id))
+    }, [])
+
+    const handlerSelectedBread = (value) =>{
+        dispatch(selectBread(value.id))
+        navigation.navigate('Detail')
+    }
+
+    const breadMap = () => {
+        return breadFilter.map((value, index) => {
+            return <BreadItem bread={value} navigate={() => handlerSelectedBread(value)} key={index}/>
+        })
+    }
+
+    return (
+        <View style={style.container}>
+            {breadMap()}
         </View>
     )
 }
 
 const style = StyleSheet.create({
-    container:{
-        alignItems:"center",
-        justifyContent:"center",
-        flex:1
+    container: {
+        alignItems: "center",
+        flex: 1
     }
 })
